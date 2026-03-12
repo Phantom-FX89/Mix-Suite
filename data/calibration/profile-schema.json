@@ -1,0 +1,8 @@
+{
+  "pluginId": "string",
+  "nominalOffsetFromReferenceDb": "number",
+  "nonlinearOnsetOffsetDb": "number",
+  "softSatOffsetDb": "number",
+  "clipOffsetDb": "number",
+  "cleanHeadroomMarginDb": "number|null"
+}
