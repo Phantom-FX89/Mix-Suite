@@ -11,7 +11,7 @@ Branch context: `research/transformer-hysteresis`
 - validate transfer curves, harmonic growth vs level, LF saturation behavior, aliasing tradeoffs, and CPU cost
 
 ## Scope Assumption
-The repository does not yet contain transformer measurements, benchmark harness code, or hardware capture data. This note therefore recommends the safest modeling path that fits the current specs and branch structure. It does not claim hardware-verified accuracy yet.
+The repository does not yet contain transformer measurements, benchmark harness code, or hardware capture data. This note therefore recommends the safest modeling path that fits the current specs and branch structure. It does not claim hardware-verified accuracy yet. A standalone synthetic prototype and first-pass comparison now exist in `research/transformer/transformer_hysteresis_experiment.cpp`.
 
 ## 1. Analog Behavior Being Studied
 Transformer behavior for Phantom Mix Suite should capture:
