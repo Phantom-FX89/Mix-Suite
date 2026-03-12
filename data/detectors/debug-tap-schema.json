@@ -1,0 +1,11 @@
+{
+  "sidechainTap": ["number", "number"],
+  "rawState": ["number", "number"],
+  "linearEnvelope": ["number", "number"],
+  "dbEnvelope": ["number", "number"],
+  "metadata": {
+    "sampleRate": "number",
+    "channelMode": "string",
+    "linkPolicy": "string|null"
+  }
+}

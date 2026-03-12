@@ -1,0 +1,11 @@
+{
+  "harmonicActivityEstimate": "number",
+  "saturationProximity": "number",
+  "debugPreShape": "number",
+  "debugPostShape": "number",
+  "metadata": {
+    "family": "string",
+    "oversamplingMode": "string",
+    "calibrationReference": "string"
+  }
+}
