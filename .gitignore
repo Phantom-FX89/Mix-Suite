@@ -1,0 +1,12 @@
+.DS_Store
+.agent/
+build/
+*.obj
+*.exe
+*.pdb
+*.suo
+*.user
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
