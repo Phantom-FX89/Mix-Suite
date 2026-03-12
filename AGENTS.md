@@ -4,16 +4,38 @@
 Phantom Mix Suite is built through the synergy of human expertise and AI efficiency. This document outlines our collaborative roles and interaction protocols.
 
 ## Agent Roles
-- **Antigravity (Lead AI Engineer / QA)**:
+- **Product Architect**:
+  - Responsible for: system architecture, specs, and plugin design.
+  - Folders: `docs/`, `specs/`.
+
+- **DSP Lead**:
+  - Responsible for: nonlinear engines, detectors, saturation models, oversampling.
+  - Folders: `core/`, `dsp/`, `data/`, `benchmarks/`.
+
+- **Plugin Engineer**:
+  - Responsible for: plugin signal graphs, parameter mapping, host integration.
+  - Folders: `plugins/`, `presets/`.
+
+- **Validation Engineer**:
+  - Responsible for: regression tests, harmonic measurements, timing verification.
+  - Folders: `tests/`, `benchmarks/`.
+
+- **AI Systems Engineer**:
+  - Responsible for: mix assistant, audio analysis, recommendation engine.
+  - Folders: `intelligence/`, `data/`, `presets/`.
+
+- **UI Systems Engineer**:
+  - Responsible for: plugin UI, design system, metering.
+  - Folders: `ui/`, `assets/`.
+
+- **Integration Engineer**:
+  - Responsible for: CI/CD, build scripts, packaging.
+  - Folders: `ci/`, `scripts/`, `cmake/`.
+
+- **Antigravity (Lead AI Engineer / QA Specialist)**:
   - Repository management and directory structure enforcement.
   - Quality Assurance: Ensuring code matches `specs/`.
   - Automated testing and CI/CD oversight.
-  - Initial DSP module drafting and UI scaffolding.
-
-- **Human Lead (Architect / Product Suite Manager)**:
-  - High-level architectural decisions and product vision.
-  - Final approval on `specs/` and `MISSION.md`.
-  - Critical listening and subjective evaluation of DSP models.
 
 ## Interaction Protocols
 - **Structure First**: All new work must be pre-planned in `.agent/` artifacts.
