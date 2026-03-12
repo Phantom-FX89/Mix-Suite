@@ -67,13 +67,17 @@ public:
         return {channelPointers_, numSamples_};
     }
 
-    [[nodiscard]] AudioBlockView<const Sample> view() const {
+    [[nodiscard]] AudioBlockView<const Sample> constView() const {
         std::vector<const Sample*> constPointers;
         constPointers.reserve(channelPointers_.size());
         for (auto* pointer : channelPointers_) {
             constPointers.push_back(pointer);
         }
         return {std::move(constPointers), numSamples_};
+    }
+
+    [[nodiscard]] AudioBlockView<const Sample> view() const {
+        return constView();
     }
 
     [[nodiscard]] std::span<Sample> channel(std::size_t channelIndex) {

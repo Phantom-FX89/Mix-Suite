@@ -100,8 +100,8 @@ void OversamplingProcessor::HalfBandStage::upsample(const AudioBlockView<const d
 
         for (std::size_t sampleIndex = 0; sampleIndex < inputChannel.size(); ++sampleIndex) {
             pushUpSample(channel, inputChannel[sampleIndex]);
-            outputChannel[(sampleIndex * 2U)] = dotPhase(upHistory_[channel], upIndices_[channel], evenCoefficients_);
-            outputChannel[(sampleIndex * 2U) + 1U] = dotPhase(upHistory_[channel], upIndices_[channel], oddCoefficients_);
+            outputChannel[(sampleIndex * 2U)] = 2.0 * dotPhase(upHistory_[channel], upIndices_[channel], evenCoefficients_);
+            outputChannel[(sampleIndex * 2U) + 1U] = 2.0 * dotPhase(upHistory_[channel], upIndices_[channel], oddCoefficients_);
         }
     }
 }

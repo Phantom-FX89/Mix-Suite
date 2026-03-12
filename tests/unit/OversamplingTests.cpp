@@ -5,6 +5,7 @@
 
 #include <array>
 #include <cmath>
+#include <limits>
 #include <numbers>
 
 namespace phantom::testing {
@@ -24,7 +25,7 @@ void runOversamplingTests() {
     oversampling.setMode(OversamplingMode::x2);
 
     double observedSampleRate = 0.0;
-    oversampling.processBlock(input.view(), output.view(), [&](const auto& inBlock, const auto& outBlock, const auto& context) {
+    oversampling.processBlock(input.constView(), output.view(), [&](const auto& inBlock, const auto& outBlock, const auto& context) {
         observedSampleRate = context.sampleRate;
         for (std::size_t channel = 0; channel < inBlock.numChannels(); ++channel) {
             auto source = inBlock.channel(channel);
@@ -36,10 +37,21 @@ void runOversamplingTests() {
     });
 
     PHANTOM_EXPECT_NEAR(observedSampleRate, 96000.0, 1.0e-9);
-    PHANTOM_EXPECT_TRUE(oversampling.getLatencySamples() > 0);
+    const auto latencySamples = oversampling.getLatencySamples();
+    PHANTOM_EXPECT_TRUE(latencySamples > 0);
 
-    const auto errorAtLowRate = std::abs(output.channel(0)[8] - input.channel(0)[8]);
-    PHANTOM_EXPECT_TRUE(errorAtLowRate < 0.15);
+    auto bestRmse = std::numeric_limits<double>::max();
+    for (std::size_t shift = 0; shift <= (latencySamples + 4U); ++shift) {
+        auto errorSum = 0.0;
+        auto count = 0.0;
+        for (std::size_t index = 8; index + shift < input.numSamples() && index < 48; ++index) {
+            const auto error = output.channel(0)[index + shift] - input.channel(0)[index];
+            errorSum += error * error;
+            count += 1.0;
+        }
+        bestRmse = std::min(bestRmse, std::sqrt(errorSum / count));
+    }
+    PHANTOM_EXPECT_NEAR(bestRmse, 0.0, 0.35);
 
     oversampling.setMode(OversamplingMode::x4);
     PHANTOM_EXPECT_TRUE(oversampling.getLatencySamples() >= 3);

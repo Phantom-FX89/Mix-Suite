@@ -28,14 +28,14 @@ void OversamplingProcessor::processBlock(const AudioBlockView<const double>& inp
 
     if (factor == 2) {
         std::forward<Processor>(processor)(stage2xBlock_.view(), stage4xProcessedBlock_.view(), currentContext(blockSize));
-        stage2x_->downsample(static_cast<const OwnedAudioBlock<double>&>(stage4xProcessedBlock_).view(), output);
+        stage2x_->downsample(stage4xProcessedBlock_.constView(), output);
         return;
     }
 
-    stage4x_->upsample(static_cast<const OwnedAudioBlock<double>&>(stage2xBlock_).view(), stage4xBlock_.view());
+    stage4x_->upsample(stage2xBlock_.constView(), stage4xBlock_.view());
     std::forward<Processor>(processor)(stage4xBlock_.view(), stage4xProcessedBlock_.view(), currentContext(blockSize));
-    stage4x_->downsample(static_cast<const OwnedAudioBlock<double>&>(stage4xProcessedBlock_).view(), stage2xDownBlock_.view());
-    stage2x_->downsample(static_cast<const OwnedAudioBlock<double>&>(stage2xDownBlock_).view(), output);
+    stage4x_->downsample(stage4xProcessedBlock_.constView(), stage2xDownBlock_.view());
+    stage2x_->downsample(stage2xDownBlock_.constView(), output);
 }
 
 }  // namespace phantom::core

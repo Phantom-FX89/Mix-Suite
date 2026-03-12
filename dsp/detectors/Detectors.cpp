@@ -128,6 +128,14 @@ private:
     std::array<SidechainFilter, kMaxChannels> filters_ {};
 };
 
+PeakDetector::~PeakDetector() {
+    delete filterBank_;
+}
+
+RmsDetector::~RmsDetector() {
+    delete filterBank_;
+}
+
 void ProgramDependentDetectorScaffold::prepare(double sampleRate) {
     sampleRate_ = sampleRate;
     reset();

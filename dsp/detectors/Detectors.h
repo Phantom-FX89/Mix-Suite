@@ -72,6 +72,13 @@ private:
 
 class PeakDetector {
 public:
+    PeakDetector() = default;
+    ~PeakDetector();
+    PeakDetector(const PeakDetector&) = delete;
+    PeakDetector& operator=(const PeakDetector&) = delete;
+    PeakDetector(PeakDetector&&) = delete;
+    PeakDetector& operator=(PeakDetector&&) = delete;
+
     void prepare(const core::PrepareSpec& spec);
     void reset(double initialLevel = 0.0);
     void setTiming(DetectorTiming timing);
@@ -105,6 +112,13 @@ private:
 
 class RmsDetector {
 public:
+    RmsDetector() = default;
+    ~RmsDetector();
+    RmsDetector(const RmsDetector&) = delete;
+    RmsDetector& operator=(const RmsDetector&) = delete;
+    RmsDetector(RmsDetector&&) = delete;
+    RmsDetector& operator=(RmsDetector&&) = delete;
+
     void prepare(const core::PrepareSpec& spec);
     void reset(double initialLevel = 0.0);
     void setTiming(DetectorTiming timing);
