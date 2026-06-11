@@ -1,4 +1,4 @@
-# Phantom-Mix-Suite
+#Mix-Suite
 
 **Professional Audio DSP Plugin Suite** — High-fidelity mixing and mastering processors with analog-modeled saturation and linear-phase processing.
 
