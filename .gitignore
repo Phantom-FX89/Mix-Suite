@@ -9,3 +9,5 @@ build/
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+# Keep the documented example env file tracked
+!.env.example
