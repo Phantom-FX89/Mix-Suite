@@ -1,371 +1,206 @@
 # Phantom Mix Suite
 
-**Audio DSP Plugin Suite**  
-High-fidelity mixing and mastering processors built with C++ and JUCE, featuring analog-modeled saturation, precision equalization, multi-band dynamics, and optimized real-time audio processing.
+Shared C++20 DSP library and directory scaffold for a mixing suite that is not built yet. The CMake project name is `PhantomMixSuiteDSP`. This checkout has library sources under `core/` and `dsp/`, empty plugin slots, and no license text.
 
----
+## Status
 
-## Overview
+| Item | State in this tree |
+| --- | --- |
+| DSP sources | Present. Eight translation units under `core/` and `dsp/`. |
+| Static library `phantom_dsp` | Declared in `CMakeLists.txt`. The CMake generate step fails before it is built. |
+| Tests | `tests/TestMain.cpp` and `tests/TestRunner.h` only. The six test sources CMake lists are missing, so `ctest` never runs. |
+| Plugins, UI, presets, hosts | Directories with `.gitkeep` files. |
+| JUCE and other third-party SDKs | Empty placeholder directories. No `.gitmodules`. |
+| CI | No `.github` workflows. |
+| License | `LICENSE` is a zero-byte file. It states no terms. |
+| Changelog | `CHANGELOG.md` is empty. |
 
-Phantom Mix Suite is a collection of professional-grade audio plugins designed for modern mixing, mastering, sound design, live sound, and post-production workflows.
+## What is implemented
 
-The suite is built around a modular DSP architecture that prioritizes audio quality, processing efficiency, and cross-platform reliability. Core processing components include parametric EQ, saturation, anti-aliasing, multi-band dynamics, high-resolution metering, and real-time parameter handling.
+`CMakeLists.txt` defines one static library, `phantom_dsp`, from:
 
-The project is developed in **C++** using the **JUCE** framework, with support planned for major plugin formats including **AU**, **VST3**, and **AAX**.
+- `core/calibration/Calibration.cpp`
+- `core/metering/Metering.cpp`
+- `core/oversampling/Oversampling.cpp`
+- `dsp/analog/AnalogPrimitives.cpp`
+- `dsp/detectors/Detectors.cpp`
+- `dsp/filters/Biquad.cpp`
+- `dsp/gain/GainComputer.cpp`
+- `dsp/nonlinear/Nonlinear.cpp`
 
----
+Public includes use the repository root (`target_include_directories` is `${CMAKE_CURRENT_SOURCE_DIR}`).
 
-## Key Features
+| Code | What the sources do |
+| --- | --- |
+| `core/processing/Types.h` | Channel modes, dB helpers, and `OversamplingMode` (`x1`, `x2`, `x4`, `x8HQ`). |
+| `core/processing/ParameterSmoother.h` | Header-only smoother. Included directly. It is not one of the library `.cpp` files. |
+| `core/audio/AudioBlock.h` | `AudioBlockView` and `OwnedAudioBlock`. |
+| `core/calibration/` | Reference modes for 0 VU at -18, -20, or -14 dBFS, plugin profile registration, and drive-region classification. |
+| `core/metering/` | Level meter and gain-reduction meter with attack/release ballistics. |
+| `core/oversampling/` | 1x, 2x, and 4x processing with latency queries. `x8HQ` throws `std::invalid_argument` with the message `x8HQ is reserved for a later quality tier`. |
+| `dsp/filters/` | One direct-form biquad, plus coefficient helpers for high-pass, bell, low shelf, and high shelf. |
+| `dsp/detectors/` | Peak and RMS detectors, optional stereo link policies, sidechain high-pass / tilt / bell, and `ProgramDependentDetectorScaffold`. |
+| `dsp/gain/` | One dB-domain gain computer: hard, soft, or variable knee, attack/release, and an optional auto-makeup callback. |
+| `dsp/nonlinear/` | `TransformerStage`, `TubeStage`, `VcaStage`, `FetStage`, `DiodeZenerStage`, and `VariMuStage`. Each is a calibration-aware per-sample waveshaper. |
+| `dsp/analog/` | Seeded component variance, white noise, a constant stereo crosstalk mix, and a power-supply memory one-pole. |
 
-- **Parametric EQ**  
-  Multi-band peaking and shelving equalization with real-time coefficient updates.
+`docs/architecture/shared-dsp-foundation.md` describes this set and the limits that still apply: nonlinear families are scaffolds, oversampling quality tiers are open, and the Phantom FET threshold/input law lives outside this library.
 
-- **Linear-Phase Processing**  
-  Phase-aware EQ and mastering workflows designed for transparent signal shaping.
+The C++ sources have no parametric EQ class, no multi-band dynamics processor, and no `juce::AudioProcessor` type.
 
-- **Analog-Modeled Saturation**  
-  Tube and transformer-style harmonic coloration using nonlinear DSP modeling.
+On a machine with g++ 13, those eight library `.cpp` files compile with:
 
-- **Multi-Band Dynamics**  
-  Frequency-selective compression and expansion for detailed dynamic control.
+```bash
+g++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -I. -c <file>
+```
 
-- **Anti-Aliasing Architecture**  
-  Configurable oversampling and filtering for cleaner nonlinear processing.
+That command is a check of the sources. It is not a CMake target, and it does not run tests.
 
-- **High-Resolution Audio Processing**  
-  Internal double-precision processing with 32-bit floating-point output support.
+## What is only a slot
 
-- **CPU-Conscious DSP Design**  
-  Efficient filter structures, cache-aware processing, and future SIMD optimization support.
+`plugins/` names eight products. Under each product, `include/`, `source/`, `tests/`, `presets/`, and `resources/` contain only `.gitkeep`:
 
-- **Cross-Platform Plugin Support**  
-  Designed for macOS, Windows, and Linux through the JUCE framework.
+- `plugins/phantom-bus`
+- `plugins/phantom-console`
+- `plugins/phantom-fet`
+- `plugins/phantom-opto`
+- `plugins/phantom-passive`
+- `plugins/phantom-tg`
+- `plugins/phantom-tube-eq`
+- `plugins/phantom-varimu`
 
----
+The same is true of the rest of the product tree: `ui/`, `presets/`, `assets/`, `intelligence/`, `src/`, `config/`, `public/`, `specs/`, `tools/`, `scripts/`, `ci/`, `standalone/phantom-suite-host`, `standalone/dsp-lab`, `standalone/preset-auditioner`, `cmake/presets`, `cmake/modules`, `cmake/toolchains`, `builds/local`, `builds/ci`, and `builds/release`.
+
+`juce/shared`, `juce/app-config`, and `juce/wrappers` are empty. `third_party/` is empty `catch2`, `clap`, `eigen`, `fmt`, `vst3sdk`, and `misc` directories. CMake never adds JUCE, the VST3 SDK, or CLAP. AU, VST3, AAX, and CLAP targets are not declared.
+
+`docs/plugin-overviews/phantom-fet.md` is a brief for a future FET slice (ratio modes, attack, release, metering, oversampling). `plugins/phantom-fet/source/` has no sources. The brief's own blockers are still open: the threshold/input control law, and a validation snapshot format. It points at `implementation plan.md`, and that file is not in this tree.
+
+## Prerequisites
+
+- CMake 3.22 or newer (`cmake_minimum_required` in `CMakeLists.txt`).
+- A C++20 compiler. The project sets `CMAKE_CXX_STANDARD` to 20, requires it, and turns extensions off. For Clang, AppleClang, and GNU, the targets also use `-Wall -Wextra -Wpedantic -Werror`.
+
+No `package.json`, Conan, or vcpkg manifest is checked in. Configure does not download dependencies. JUCE is not required for this CMake file, and adding a JUCE copy elsewhere does not create plugin targets.
+
+## Install
+
+There is no install step. `CMakeLists.txt` has no `install()` rule. `scripts/setup` and `scripts/release` contain only `.gitkeep`. Nothing in this repository installs a plugin, a host, or a packaged library.
+
+## Configuration
+
+No host runs, so there is no app configuration and no secrets to fill in.
+
+- `config/` is empty.
+- No `CMakePresets.json` is shipped. `cmake/presets/` is a placeholder.
+- `.gitignore` ignores `build/` (a CMake build directory) plus a few compiler and Visual Studio artifacts. The tracked `builds/` directory is placeholders, not build output.
+
+Do not commit credentials. This tree has no env example to copy.
+
+## Build
+
+`docs/architecture/shared-dsp-foundation.md` asks for this sequence. It does not succeed here.
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+ctest --test-dir build
+```
+
+CMake configures, then generate fails:
+
+```text
+CMake Error at CMakeLists.txt:30 (add_executable):
+  Cannot find source file:
+
+    tests/unit/AnalogPrimitivesTests.cpp
+```
+
+`add_executable(phantom_dsp_tests ...)` lists six files that are not in the repository:
+
+- `tests/unit/AnalogPrimitivesTests.cpp`
+- `tests/unit/CalibrationTests.cpp`
+- `tests/unit/DetectorTests.cpp`
+- `tests/unit/GainComputerTests.cpp`
+- `tests/unit/NonlinearTests.cpp`
+- `tests/unit/OversamplingTests.cpp`
+
+`tests/TestMain.cpp` calls `runAnalogPrimitivesTests`, `runCalibrationTests`, `runDetectorTests`, `runGainComputerTests`, `runNonlinearTests`, and `runOversamplingTests` in namespace `phantom::testing`. Those functions are not defined in the tree. `tests/TestRunner.h` provides `PHANTOM_EXPECT_TRUE` and `PHANTOM_EXPECT_NEAR`.
+
+Generate stops before writing a build system, so `cmake --build build` has nothing to build and `ctest` is not reached. The static library is not emitted either.
+
+Reproduced with CMake 3.28.3 and g++ 13: generate stops on `tests/unit/AnalogPrimitivesTests.cpp`. The failure is the missing test sources. It is not a missing JUCE submodule.
+
+## Usage
+
+No executable, plugin binary, or command-line tool is produced.
+
+The intended library surface is the headers in `core/` and `dsp/`, linked as `phantom_dsp`, once a build exists. `standalone/` does not contain a program that links it. Until `CMakeLists.txt` and `tests/unit/` agree on which test files exist, the documented CMake commands do not produce that library.
 
 ## Architecture
 
-Phantom Mix Suite is organized around reusable DSP primitives. Each processor is designed to be modular, testable, and efficient enough for real-time use in professional audio environments.
+Read the docs that are actually in the tree:
 
-### Core DSP Modules
+1. `docs/architecture/shared-dsp-foundation.md` — shared blocks that exist, the approximations they still use, and the validation that has not been run. This is the architecture note for the code above.
+2. `docs/architecture/phantom-suite-system.md` — milestone order and ownership boundaries for work that is still ahead. It references `implementation plan.md` and `specs/`. The plan file is absent. `specs/` is empty.
+3. `docs/plugin-overviews/phantom-fet.md` — product brief for the first plugin slice. The plugin sources are absent.
 
-| Module | Purpose |
+Schemas next to the DSP types:
+
+- `data/calibration/profile-schema.json`
+- `data/detectors/debug-tap-schema.json`
+- `data/harmonics/telemetry-schema.json`
+
+Notes, separate from measured results:
+
+- `research/transformer/hysteresis-notes.md` — pre-production modeling note. It says this repository has no transformer measurements and no hardware captures.
+- `benchmarks/dsp/transformer-hysteresis-benchmark-plan.md` — a plan for a later measurement pass. `benchmarks/` has no harness code.
+
+These paths exist and are empty:
+
+- `docs/validation/measurement-protocol.md`
+- `research/fet/1176-envelope-study.ipynb`
+- `research/wdf/pultec-network-prototype.cpp`
+- `CHANGELOG.md`
+
+`.agent/` is internal agent workflow notes (`.agent/MISSION.md`, `.agent/ARCHITECTURE.md`, `.agent/ACCEPTANCE.md`, `.agent/NOTES.md`, and `.agent/workflows/`). It is not the DSP design. `.agent/RUNBOOK.md` is empty.
+
+## Testing
+
+The project declares a test and cannot run it.
+
+`CMakeLists.txt` calls `enable_testing()` and `add_test(NAME phantom_dsp_tests COMMAND phantom_dsp_tests)`. Generation fails on the missing sources in [Build](#build), so there is no `ctest` result and no passing suite to report.
+
+Placeholder test directories (`.gitkeep` only):
+
+- `tests/fixtures/`
+- `tests/integration/`
+- `tests/plugin-validation/au-vst3/`
+- `tests/regression/console-eq-curves/`
+- `tests/unit/detectors/`
+- `tests/unit/nonlinear/`
+
+No continuous-integration workflow is configured.
+
+## Scripts
+
+| Path | Contents |
 | --- | --- |
-| Parametric EQ | Multi-band equalization using bi-quad filter topology |
-| Saturation Engine | Harmonic coloration through nonlinear transfer functions |
-| Dynamics Processor | Compression, expansion, and multi-band dynamics |
-| Oversampling Engine | Anti-aliasing support for nonlinear processing |
-| Metering System | Input/output RMS and peak metering |
-| Plugin Wrapper | JUCE-based integration with supported plugin formats |
+| `scripts/setup` | `.gitkeep` |
+| `scripts/test` | `.gitkeep` |
+| `scripts/format` | `.gitkeep` |
+| `scripts/package` | `.gitkeep` |
+| `scripts/release` | `.gitkeep` |
 
----
+No setup, format, package, or release command ships with the repo.
 
-## Parametric EQ
+## Contributing
 
-The Parametric EQ module implements a 5-band equalizer using a cascade of bi-quad filters.
+No `CONTRIBUTING` file, issue template, or CI check is in the repository.
 
-### EQ Capabilities
+When DSP code changes, update `docs/architecture/shared-dsp-foundation.md` so it still matches `core/` and `dsp/`. Plugin-format support, UI, and license claims need the corresponding files in the tree.
 
-- 5 configurable EQ bands
-- Peaking and shelving filter support
-- Frequency, gain, and Q parameter control
-- Per-channel filter state management
-- RMS input/output metering
-- Real-time coefficient updates
-- Click-resistant parameter handling at block boundaries
-
-### Example Structure
-
-```cpp
-class ParametricEQ {
-public:
-    static constexpr int NUM_BANDS = 5;
-
-    void processBlock(juce::AudioBuffer<float>& buffer);
-
-private:
-    std::array<FilterBand, NUM_BANDS> bands;
-};
-```
-
----
-
-## Filter Architecture
-
-Each EQ band uses a Direct Form II bi-quad filter implementation.
-
-### Filter State
-
-Each filter band maintains:
-
-- Numerator coefficients: `b0`, `b1`, `b2`
-- Denominator coefficients: `a0`, `a1`, `a2`
-- Input history: `x1`, `x2`
-- Output history: `y1`, `y2`
-
-```cpp
-struct FilterBand {
-    double b0, b1, b2;
-    double a0, a1, a2;
-
-    double x1 = 0.0;
-    double x2 = 0.0;
-    double y1 = 0.0;
-    double y2 = 0.0;
-
-    inline double processSample(double input) {
-        double output = b0 * input + b1 * x1 + b2 * x2
-                      - a1 * y1 - a2 * y2;
-
-        x2 = x1;
-        x1 = input;
-        y2 = y1;
-        y1 = output;
-
-        return output;
-    }
-};
-```
-
----
-
-## DSP Techniques
-
-### Bi-Quad Filters
-
-Each EQ band is implemented as a second-order recursive filter. This topology is widely used in audio DSP because it offers a strong balance of precision, stability, and computational efficiency.
-
-A bi-quad filter uses:
-
-- Feedforward taps: `b0`, `b1`, `b2`
-- Feedback taps: `a1`, `a2`
-- Two samples of input history
-- Two samples of output history
-
-This structure allows each band to operate efficiently while preserving enough flexibility for peaking, shelving, and other common EQ shapes.
-
-### Coefficient Calculation
-
-User-facing EQ controls are converted into filter coefficients using standard audio EQ formulas.
-
-Core parameters include:
-
-- Frequency
-- Gain
-- Q factor
-- Sample rate
-- Filter type
-
-The coefficient update process includes:
-
-1. Reading the current band configuration.
-2. Calculating angular frequency.
-3. Converting gain from dB to linear scale.
-4. Updating normalized filter coefficients.
-5. Applying the updated coefficients at safe processing boundaries.
-
-### Cascaded Filter Processing
-
-Multiple EQ bands are applied serially to create the final EQ response.
-
-Processing flow:
-
-1. Input sample enters Band 1.
-2. Output of Band 1 feeds Band 2.
-3. The chain continues through all active bands.
-4. Final processed sample is written back to the audio buffer.
-
----
-
-## Anti-Aliasing Strategy
-
-Nonlinear processing, such as saturation, can generate harmonics above the Nyquist frequency. Phantom Mix Suite uses an anti-aliasing architecture designed to reduce unwanted foldback artifacts.
-
-### Planned Anti-Aliasing Features
-
-- Configurable 2x and 4x oversampling
-- Low-pass filtering before downsampling
-- Saturation-specific oversampling paths
-- Latency compensation for oversampled processors
-- Optional low-latency mode for tracking and live use
-
-> Note: Linear-phase and oversampled processing may introduce latency depending on implementation. Low-latency modes should be treated as separate processing paths from linear-phase mastering modes.
-
----
-
-## Real-Time Processing
-
-### Parameter Mapping
-
-```cpp
-void ParametricEQ::setBand(int bandIndex, const EQBandConfig& config) {
-    if (bandIndex >= 0 && bandIndex < NUM_BANDS) {
-        bandConfigs[bandIndex] = config;
-        bands[bandIndex].updateCoefficients(config);
-    }
-}
-
-const EQBandConfig& ParametricEQ::getBand(int bandIndex) const {
-    return bandConfigs[bandIndex];
-}
-```
-
-### Processing Loop
-
-```cpp
-void ParametricEQ::processBlock(juce::AudioBuffer<float>& buffer) {
-    const int numSamples = buffer.getNumSamples();
-    const int numChannels = buffer.getNumChannels();
-
-    for (int ch = 0; ch < numChannels; ++ch) {
-        auto* data = buffer.getWritePointer(ch);
-
-        for (int s = 0; s < numSamples; ++s) {
-            float sample = data[s];
-
-            for (auto& band : bands) {
-                sample = static_cast<float>(band.processSample(sample));
-            }
-
-            data[s] = sample;
-        }
-    }
-}
-```
-
----
-
-## Building
-
-### Requirements
-
-- C++17 or later
-- CMake
-- JUCE
-- A supported compiler:
-  - Clang
-  - GCC
-  - MSVC
-
-### Build Commands
-
-```bash
-cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
-cmake --build build --parallel
-```
-
----
-
-## JUCE Integration
-
-Plugins inherit from `juce::AudioProcessor` and implement the standard JUCE plugin lifecycle.
-
-### Core JUCE Methods
-
-| Method | Purpose |
-| --- | --- |
-| `prepareToPlay()` | Initializes DSP state using the host sample rate and block size |
-| `processBlock()` | Performs real-time audio processing |
-| `releaseResources()` | Cleans up allocated processing resources |
-| `getParameters()` | Exposes plugin parameters for UI and automation |
-
----
-
-## Performance Targets
-
-The following values represent target performance characteristics and should be validated through profiling during development.
-
-| Metric | Target |
-| --- | --- |
-| CPU Usage | Approximately 2–5% per stereo instance at 48 kHz |
-| Latency | 0 samples for minimum-phase/low-latency modes |
-| Memory Usage | Approximately 512 KB per instance |
-| Internal Precision | 64-bit floating-point processing |
-| Output Precision | 32-bit floating-point audio output |
-
----
-
-## Design Philosophy
-
-Phantom Mix Suite is built around five core principles:
-
-1. **Audio Quality**  
-   Preserve clarity, depth, and detail while avoiding unwanted artifacts.
-
-2. **Efficiency**  
-   Keep processing lightweight enough for real-time mixing sessions.
-
-3. **Usability**  
-   Provide intuitive controls, useful metering, and responsive parameter changes.
-
-4. **Modularity**  
-   Keep DSP components reusable across processors and plugin types.
-
-5. **Portability**  
-   Maintain a cross-platform foundation through JUCE and CMake.
-
----
-
-## Use Cases
-
-- **Mixing**  
-  Surgical EQ, tonal shaping, compression, and saturation for individual tracks.
-
-- **Mastering**  
-  Transparent processing, phase-aware EQ, loudness control, and final-stage enhancement.
-
-- **Sound Design**  
-  Harmonic coloration, creative distortion, and dynamic tone shaping.
-
-- **Live Sound**  
-  Low-latency processing for real-time applications.
-
-- **Post-Production**  
-  Restoration, enhancement, and precision control for recorded material.
-
----
-
-## Implementation Notes
-
-- Filter state should be maintained per channel to prevent cross-channel artifacts.
-- DSP operations should use double precision internally where numerical stability matters.
-- Parameter changes should be smoothed or applied at safe boundaries to prevent clicks.
-- Metering should update at a UI-friendly rate rather than every sample.
-- Oversampling should be applied selectively to nonlinear processors to manage CPU usage.
-- Linear-phase processing and zero-latency processing should be treated as separate operating modes.
-
----
-
-## Roadmap
-
-Planned future enhancements include:
-
-- GPU-accelerated processing for selected multi-band operations
-- Machine learning-assisted mastering suggestions
-- Sidechain filtering for dynamics and EQ processors
-- Real-time spectral analysis and visualization
-- A/B comparison tools
-- Preset morphing
-- Expanded saturation models
-- Automated gain matching
-- Plugin preset browser and tagging system
-
----
+Leave `LICENSE` for the owner. This README does not fill it in.
 
 ## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
-
----
-
-## Documentation
-
-For deeper technical documentation, see:
-
-```text
-/docs/ARCHITECTURE.md
-```
-
----
-
-**Built with professional audio engineering principles for high-quality, real-time DSP workflows.**
+`LICENSE` is a zero-byte file. It names no copyright holder and no license terms. The tree does not grant a license. An earlier README described this project as MIT; that text did not match `LICENSE`, and this file does not repeat it. Treat the code as unlicensed until the owner commits a real license.
