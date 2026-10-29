@@ -1,7 +1,7 @@
 # Phantom Mix Suite System Architecture
 
 ## Purpose
-This document extracts the active implementation boundary from [`implementation plan.md`](/Users/phantom_89/Documents/Anitgravity%20/Phantom%20Mix%20Suite/implementation%20plan.md) and the current shared/plugin specs. It exists to keep branch sequencing, scope boundaries, and handoff order clear during the first execution cycle.
+This document extracts the active implementation boundary from `implementation plan.md` and the current shared/plugin specs. It exists to keep branch sequencing, scope boundaries, and handoff order clear during the first execution cycle.
 
 This is a planning and dependency document. Module behavior still lives in `specs/`.
 
