@@ -15,6 +15,24 @@ Shared C++20 DSP library and directory scaffold for a mixing suite that is not b
 | License | `LICENSE` is a zero-byte file. It states no terms. |
 | Changelog | `CHANGELOG.md` is empty. |
 
+## Repository layout
+
+C++/JUCE paths in this checkout:
+
+| Path | What is here |
+| --- | --- |
+| `CMakeLists.txt` | Project `PhantomMixSuiteDSP`. Declares static library `phantom_dsp`. Generate fails; see [Build](#build). |
+| `core/` | Calibration, metering, oversampling, and the audio and processing headers. |
+| `dsp/` | Analog, detector, biquad, gain-computer, and nonlinear sources. |
+| `juce/` | Empty `shared/`, `app-config/`, and `wrappers/`. CMake does not add JUCE. |
+| `plugins/` | Eight product directories. Each holds only `.gitkeep` files. |
+| `standalone/` | Placeholder `phantom-suite-host/`, `dsp-lab/`, and `preset-auditioner/`. |
+| `ui/` | Placeholder components, layouts, and themes. |
+| `tests/` | `tests/TestMain.cpp` and `tests/TestRunner.h`. The unit sources CMake lists are missing. |
+| `docs/` | Architecture notes and the FET plugin brief. `docs/validation/measurement-protocol.md` is empty. |
+
+Other top-level directories are described in [What is only a slot](#what-is-only-a-slot) and [Architecture](#architecture).
+
 ## What is implemented
 
 `CMakeLists.txt` defines one static library, `phantom_dsp`, from:
@@ -195,7 +213,7 @@ No setup, format, package, or release command ships with the repo.
 
 ## Contributing
 
-No `CONTRIBUTING` file, issue template, or CI check is in the repository.
+No `CONTRIBUTING` file, issue template, or CI check is in the repository. Directory roles are in [Repository layout](#repository-layout).
 
 When DSP code changes, update `docs/architecture/shared-dsp-foundation.md` so it still matches `core/` and `dsp/`. Plugin-format support, UI, and license claims need the corresponding files in the tree.
 
