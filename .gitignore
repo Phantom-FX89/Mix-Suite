@@ -9,3 +9,9 @@ build/
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+.env
+.env.*
+CMakeUserPresets.json
+__pycache__/
+.ipynb_checkpoints/
+.vs/

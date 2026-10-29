@@ -58,7 +58,7 @@ The first integrated `Phantom FET` branch is not ready for merge until it can de
 - deterministic state restore for ratio, timing, and meter mode behavior
 
 ## Current Blockers
-- the final threshold/input control law is still listed as an open question in [`implementation plan.md`](/Users/phantom_89/Documents/Anitgravity%20/Phantom%20Mix%20Suite/implementation%20plan.md)
+- the final threshold/input control law is still listed as an open question in `implementation plan.md`
 - validation snapshot format is not finalized yet
 
 Until those are resolved, implementation may proceed on internal graph composition and measurable DSP behavior, but not on final public control semantics or golden-reference storage conventions.
